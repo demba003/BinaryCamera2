@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">BinaryCamera2</string>
+    <string-array name="mode_label_array">
+        <item>Mode: Normal</item>
+        <item>Mode: Binary</item>
+    </string-array>
+</resources>
