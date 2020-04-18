@@ -8,9 +8,9 @@ import android.renderscript.Allocation.OnBufferAvailableListener
 import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.Type
-import android.util.Log
 import android.util.Size
 import android.view.Surface
+import io.reactivex.rxjava3.subjects.PublishSubject
 
 class ViewfinderProcessor(rs: RenderScript?, dimensions: Size) {
     private val yuvTypeBuilder = Type.Builder(rs, Element.YUV(rs)).apply {
@@ -23,12 +23,22 @@ class ViewfinderProcessor(rs: RenderScript?, dimensions: Size) {
         setY(dimensions.height)
     }
 
-    private val mInputAllocation = Allocation.createTyped(rs, yuvTypeBuilder.create(), Allocation.USAGE_IO_INPUT or Allocation.USAGE_SCRIPT)
-    private val mOutputAllocation = Allocation.createTyped(rs, rgbTypeBuilder.create(), Allocation.USAGE_IO_OUTPUT or Allocation.USAGE_SCRIPT)
-    private val mProcessingHandler = Handler(HandlerThread("ViewfinderProcessor").apply { start() }.looper)
+    private val mInputAllocation = Allocation.createTyped(
+        rs,
+        yuvTypeBuilder.create(),
+        Allocation.USAGE_IO_INPUT or Allocation.USAGE_SCRIPT
+    )
+    private val mOutputAllocation = Allocation.createTyped(
+        rs,
+        rgbTypeBuilder.create(),
+        Allocation.USAGE_IO_OUTPUT or Allocation.USAGE_SCRIPT
+    )
+    private val mProcessingHandler =
+        Handler(HandlerThread("ViewfinderProcessor").apply { start() }.looper)
     private val mBinarizationScript = ScriptC_SimpleBinarization(rs)
     private var mMode = 0
 
+    val processingTime = PublishSubject.create<Long>()
 
     val inputSurface: Surface
         get() = mInputAllocation.surface
@@ -46,7 +56,8 @@ class ViewfinderProcessor(rs: RenderScript?, dimensions: Size) {
         setRenderMode(MODE_NORMAL)
     }
 
-    internal inner class ProcessingTask(private val mInputAllocation: Allocation) : Runnable, OnBufferAvailableListener {
+    internal inner class ProcessingTask(private val mInputAllocation: Allocation) : Runnable,
+        OnBufferAvailableListener {
         private var mPendingFrames = 0
 
         override fun onBufferAvailable(a: Allocation) {
@@ -56,7 +67,10 @@ class ViewfinderProcessor(rs: RenderScript?, dimensions: Size) {
             }
         }
 
-        override fun run() { // Find out how many frames have arrived
+        override fun run() {
+            val startTime = System.currentTimeMillis()
+
+            // Find out how many frames have arrived
             var pendingFrames: Int
             synchronized(this) {
                 pendingFrames = mPendingFrames
@@ -90,6 +104,9 @@ class ViewfinderProcessor(rs: RenderScript?, dimensions: Size) {
             // Run processing pass
             mBinarizationScript.forEach_binarize(mOutputAllocation)
             mOutputAllocation.ioSend()
+
+            val endTime = System.currentTimeMillis()
+            processingTime.onNext(endTime - startTime)
         }
     }
 

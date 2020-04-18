@@ -16,6 +16,7 @@ import android.view.SurfaceHolder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.getSystemService
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.main.*
 
 class BinaryCameraActivity : AppCompatActivity(), SurfaceHolder.Callback, CameraOps.CameraReadyListener {
@@ -58,6 +59,10 @@ class BinaryCameraActivity : AppCompatActivity(), SurfaceHolder.Callback, Camera
     private fun initListeners() {
         originalPreviewButton.setOnClickListener { switchRenderMode(ViewfinderProcessor.MODE_NORMAL) }
         bradleyKotlinButton.setOnClickListener { switchRenderMode(ViewfinderProcessor.MODE_BINARY) }
+
+        mProcessor.processingTime
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { processingFpsLabel.text = getString(R.string.processing_fps, 1000 / it) }
     }
 
     private fun checkCameraPermissions(): Boolean {
