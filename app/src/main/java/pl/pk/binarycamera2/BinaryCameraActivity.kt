@@ -35,12 +35,12 @@ class BinaryCameraActivity : AppCompatActivity(), SurfaceHolder.Callback, Camera
     private val mProcessor: ViewfinderProcessor by lazy { ViewfinderProcessor(mRS, outputSize) }
     private val mCameraManager: CameraManager by lazy { getSystemService<CameraManager>()!! }
     private val mCameraOps: CameraOps by lazy { CameraOps(mCameraManager, this, mUiHandler) }
-    private var mRenderMode = ViewfinderProcessor.MODE_NORMAL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main)
-        mPreviewView.holder.addCallback(this)
+        previewView.holder.addCallback(this)
+        initListeners()
 
         if (!checkCameraPermissions()) {
             requestCameraPermissions()
@@ -53,6 +53,11 @@ class BinaryCameraActivity : AppCompatActivity(), SurfaceHolder.Callback, Camera
         super.onPause()
         // Wait until camera is closed to ensure the next application can open it
         mCameraOps.closeCameraAndWait()
+    }
+
+    private fun initListeners() {
+        originalPreviewButton.setOnClickListener { switchRenderMode(ViewfinderProcessor.MODE_NORMAL) }
+        bradleyKotlinButton.setOnClickListener { switchRenderMode(ViewfinderProcessor.MODE_BINARY) }
     }
 
     private fun checkCameraPermissions(): Boolean {
@@ -108,10 +113,8 @@ class BinaryCameraActivity : AppCompatActivity(), SurfaceHolder.Callback, Camera
         }
     }
 
-    private fun switchRenderMode(direction: Int) {
-        mRenderMode = (mRenderMode + direction) % 2
-        mModeText.text = resources.getStringArray(R.array.mode_label_array)[mRenderMode]
-        mProcessor.setRenderMode(mRenderMode)
+    private fun switchRenderMode(mode: Int) {
+        mProcessor.setRenderMode(mode)
     }
 
     /**
@@ -120,9 +123,8 @@ class BinaryCameraActivity : AppCompatActivity(), SurfaceHolder.Callback, Camera
     private fun configureSurfaces() {
         Log.i(TAG, "Resolution chosen: $outputSize")
 
-        mPreviewView.setOnClickListener { switchRenderMode(1) }
         setupProcessor()
-        mPreviewView.holder.setFixedSize(outputSize.width, outputSize.height)
+        previewView.holder.setFixedSize(outputSize.width, outputSize.height)
     }
 
     /**

@@ -8,6 +8,7 @@ import android.renderscript.Allocation.OnBufferAvailableListener
 import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.Type
+import android.util.Log
 import android.util.Size
 import android.view.Surface
 
@@ -74,13 +75,13 @@ class ViewfinderProcessor(rs: RenderScript?, dimensions: Size) {
                 val arr = ByteArray(mInputAllocation.bytesSize) // 1280*720*1.5
                 mInputAllocation.copyTo(arr)
 
-                for( i in 0 until 921_600) {
-                    if(arr[i] < 0) {
-                        arr[i] = -1;
-                    } else {
-                        arr[i] = 0;
-                    }
-                }
+//                for( i in 0 until (mInputAllocation.bytesSize/1.5).toInt()) {
+//                    if(arr[i] < 0) {
+//                        arr[i] = -1;
+//                    } else {
+//                        arr[i] = 0;
+//                    }
+//                }
 
                 mInputAllocation.copyFrom(arr)
                 mBinarizationScript._gDoMerge = 0
@@ -94,7 +95,7 @@ class ViewfinderProcessor(rs: RenderScript?, dimensions: Size) {
 
     companion object {
         const val MODE_NORMAL = 0
-        private const val MODE_BINARY = 1
+        const val MODE_BINARY = 1
     }
 
 }

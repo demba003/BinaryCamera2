@@ -1,7 +1,12 @@
 <resources>
     <string name="app_name">BinaryCamera2</string>
-    <string-array name="mode_label_array">
-        <item>Mode: Normal</item>
-        <item>Mode: Binary</item>
-    </string-array>
+    <string name="original_preview">Original preview</string>
+    <string name="bradley_kotlin">Bradley Kotlin</string>
+    <string name="bradley_cpp">Bradley C++</string>
+    <string name="bradley_rs">Bradley RS</string>
+    <string name="sauvola_kotlin">Sauvola Kotlin</string>
+    <string name="sauvola_cpp">Sauvola C++</string>
+    <string name="sauvola_rs">Sauvola RS</string>
+    <string name="preview_fps">Preview FPS: %.2f</string>
+    <string name="processing_fps">Processing FPS: $.2f</string>
 </resources>
