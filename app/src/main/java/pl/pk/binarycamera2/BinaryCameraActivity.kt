@@ -19,23 +19,24 @@ import androidx.core.content.getSystemService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.main.*
 
-class BinaryCameraActivity : AppCompatActivity(), SurfaceHolder.Callback, CameraOps.CameraReadyListener {
-    private val mUiHandler: Handler = Handler(Looper.getMainLooper())
+class BinaryCameraActivity : AppCompatActivity(), SurfaceHolder.Callback,
+    CameraOps.CameraReadyListener {
+    private val uiHandler: Handler = Handler(Looper.getMainLooper())
     private val outputSize = Size(1280, 720)
-    private var mCameraInfo: CameraCharacteristics? = null
-    private var mPreviewSurface: Surface? = null
-    private val mProcessingNormalSurface: Surface by lazy { mProcessor.inputSurface }
-    private val mPreviewRequest: CaptureRequest by lazy {
-        mCameraOps.createCaptureRequest(CameraDevice.TEMPLATE_RECORD).run {
+    private var cameraInfo: CameraCharacteristics? = null
+    private var previewSurface: Surface? = null
+    private val processingSurface: Surface by lazy { processor.inputSurface }
+    private val previewRequest: CaptureRequest by lazy {
+        cameraOps.createCaptureRequest(CameraDevice.TEMPLATE_RECORD).run {
             set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range.create(30, 30))
-            addTarget(mProcessingNormalSurface)
+            addTarget(processingSurface)
             build()
         }
     }
-    private val mRS: RenderScript by lazy { RenderScript.create(this) }
-    private val mProcessor: ViewfinderProcessor by lazy { ViewfinderProcessor(mRS, outputSize) }
-    private val mCameraManager: CameraManager by lazy { getSystemService<CameraManager>()!! }
-    private val mCameraOps: CameraOps by lazy { CameraOps(mCameraManager, this, mUiHandler) }
+    private val renderScript: RenderScript by lazy { RenderScript.create(this) }
+    private val processor: ViewfinderProcessor by lazy { ViewfinderProcessor(renderScript, outputSize) }
+    private val cameraManager: CameraManager by lazy { getSystemService<CameraManager>()!! }
+    private val cameraOps: CameraOps by lazy { CameraOps(cameraManager, this, uiHandler) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,14 +54,18 @@ class BinaryCameraActivity : AppCompatActivity(), SurfaceHolder.Callback, Camera
     override fun onPause() {
         super.onPause()
         // Wait until camera is closed to ensure the next application can open it
-        mCameraOps.closeCameraAndWait()
+        cameraOps.closeCameraAndWait()
     }
 
     private fun initListeners() {
-        originalPreviewButton.setOnClickListener { switchRenderMode(ViewfinderProcessor.MODE_NORMAL) }
-        bradleyKotlinButton.setOnClickListener { switchRenderMode(ViewfinderProcessor.MODE_BINARY) }
+        originalPreviewButton.setOnClickListener {
+            processor.processingMode = ProcessingMode.ORIGINAL
+        }
+        bradleyRsButton.setOnClickListener {
+            processor.processingMode = ProcessingMode.BRADLEY_RS
+        }
 
-        mProcessor.processingTime
+        processor.processingTime
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { processingFpsLabel.text = getString(R.string.processing_fps, 1000 / it) }
     }
@@ -77,10 +82,18 @@ class BinaryCameraActivity : AppCompatActivity(), SurfaceHolder.Callback, Camera
     }
 
     private fun requestCameraPermissions() {
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), REQUEST_PERMISSIONS_REQUEST_CODE)
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.CAMERA),
+            REQUEST_PERMISSIONS_REQUEST_CODE
+        )
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
             when {
                 grantResults.isEmpty() -> {
@@ -102,24 +115,20 @@ class BinaryCameraActivity : AppCompatActivity(), SurfaceHolder.Callback, Camera
             return
         }
 
-        val cameraIds = mCameraManager.cameraIdList
+        val cameraIds = cameraManager.cameraIdList
 
         for (id in cameraIds) {
-            val info = mCameraManager.getCameraCharacteristics(id)
+            val info = cameraManager.getCameraCharacteristics(id)
             val facing = info.get(CameraCharacteristics.LENS_FACING)
 
             if (facing == CameraCharacteristics.LENS_FACING_BACK) {
                 // Found suitable camera - get info, open, and set up outputs
-                mCameraInfo = info
-                mCameraOps.openCamera(id)
+                cameraInfo = info
+                cameraOps.openCamera(id)
                 configureSurfaces()
                 break
             }
         }
-    }
-
-    private fun switchRenderMode(mode: Int) {
-        mProcessor.setRenderMode(mode)
     }
 
     /**
@@ -137,9 +146,9 @@ class BinaryCameraActivity : AppCompatActivity(), SurfaceHolder.Callback, Camera
      * and the camera device inputs/outputs.
      */
     private fun setupProcessor() {
-        if (mPreviewSurface == null) return
-        mProcessor.setOutputSurface(mPreviewSurface)
-        mCameraOps.setSurfaces(listOf(mProcessingNormalSurface))
+        if (previewSurface == null) return
+        processor.setOutputSurface(previewSurface)
+        cameraOps.setSurfaces(listOf(processingSurface))
     }
 
     /**
@@ -148,7 +157,11 @@ class BinaryCameraActivity : AppCompatActivity(), SurfaceHolder.Callback, Camera
      */
     private val mCaptureCallback: CaptureCallback = object : CaptureCallback() {
         var timestamp: Long = 0
-        override fun onCaptureCompleted(session: CameraCaptureSession, request: CaptureRequest, result: TotalCaptureResult) {
+        override fun onCaptureCompleted(
+            session: CameraCaptureSession,
+            request: CaptureRequest,
+            result: TotalCaptureResult
+        ) {
             val time = System.currentTimeMillis() - timestamp
             Log.d("DUPA", (1000 / time).toString())
             timestamp = System.currentTimeMillis()
@@ -159,7 +172,7 @@ class BinaryCameraActivity : AppCompatActivity(), SurfaceHolder.Callback, Camera
      * Callbacks for the FixedAspectSurfaceView
      */
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        mPreviewSurface = holder.surface
+        previewSurface = holder.surface
         setupProcessor()
     }
 
@@ -167,15 +180,14 @@ class BinaryCameraActivity : AppCompatActivity(), SurfaceHolder.Callback, Camera
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
-        mPreviewSurface = null
+        previewSurface = null
     }
 
     /**
      * Callbacks for CameraOps
      */
     override fun onCameraReady() {
-        switchRenderMode(0)
-        mCameraOps.setRepeatingRequest(mPreviewRequest, mCaptureCallback, mUiHandler)
+        cameraOps.setRepeatingRequest(previewRequest, mCaptureCallback, uiHandler)
     }
 
     companion object {

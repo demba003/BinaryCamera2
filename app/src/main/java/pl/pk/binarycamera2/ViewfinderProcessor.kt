@@ -11,8 +11,10 @@ import android.renderscript.Type
 import android.util.Size
 import android.view.Surface
 import io.reactivex.rxjava3.subjects.PublishSubject
+import pl.pk.binarizer.rs.BradleyBinarizationFS
+import pl.pk.binarizer.rs.YuvToMonochrome
 
-class ViewfinderProcessor(rs: RenderScript?, dimensions: Size) {
+class ViewfinderProcessor(rs: RenderScript, dimensions: Size) {
     private val yuvTypeBuilder = Type.Builder(rs, Element.YUV(rs)).apply {
         setX(dimensions.width)
         setY(dimensions.height)
@@ -23,37 +25,34 @@ class ViewfinderProcessor(rs: RenderScript?, dimensions: Size) {
         setY(dimensions.height)
     }
 
-    private val mInputAllocation = Allocation.createTyped(
+    private val inputAllocation = Allocation.createTyped(
         rs,
         yuvTypeBuilder.create(),
         Allocation.USAGE_IO_INPUT or Allocation.USAGE_SCRIPT
     )
-    private val mOutputAllocation = Allocation.createTyped(
+    private val outputAllocation = Allocation.createTyped(
         rs,
         rgbTypeBuilder.create(),
         Allocation.USAGE_IO_OUTPUT or Allocation.USAGE_SCRIPT
     )
-    private val mProcessingHandler =
+    private val processingHandler =
         Handler(HandlerThread("ViewfinderProcessor").apply { start() }.looper)
-    private val mBinarizationScript = ScriptC_SimpleBinarization(rs)
-    private var mMode = 0
 
-    val processingTime = PublishSubject.create<Long>()
+    private val originalProcessor = YuvToMonochrome(rs)
+    private val bradleyFsProcessor = BradleyBinarizationFS(rs)
+
+    var processingMode = ProcessingMode.ORIGINAL
+    val processingTime: PublishSubject<Long> = PublishSubject.create<Long>()
 
     val inputSurface: Surface
-        get() = mInputAllocation.surface
+        get() = inputAllocation.surface
 
     fun setOutputSurface(output: Surface?) {
-        mOutputAllocation.surface = output
-    }
-
-    fun setRenderMode(mode: Int) {
-        mMode = mode
+        outputAllocation.surface = output
     }
 
     init {
-        mInputAllocation.setOnBufferAvailableListener(ProcessingTask(mInputAllocation))
-        setRenderMode(MODE_NORMAL)
+        inputAllocation.setOnBufferAvailableListener(ProcessingTask(inputAllocation))
     }
 
     internal inner class ProcessingTask(private val mInputAllocation: Allocation) : Runnable,
@@ -63,10 +62,9 @@ class ViewfinderProcessor(rs: RenderScript?, dimensions: Size) {
         override fun onBufferAvailable(a: Allocation) {
             synchronized(this) {
                 mPendingFrames++
-                mProcessingHandler.post(this)
+                processingHandler.post(this)
             }
         }
-
         override fun run() {
             val startTime = System.currentTimeMillis()
 
@@ -76,34 +74,45 @@ class ViewfinderProcessor(rs: RenderScript?, dimensions: Size) {
                 pendingFrames = mPendingFrames
                 mPendingFrames = 0
                 // Discard extra messages in case processing is slower than frame rate
-                mProcessingHandler.removeCallbacks(this)
+                processingHandler.removeCallbacks(this)
             }
             // Get to newest input
             for (i in 0 until pendingFrames) {
                 mInputAllocation.ioReceive()
             }
 
-            if (mMode == MODE_BINARY) {
-                mBinarizationScript._gDoMerge = 1
-            } else {
-                val arr = ByteArray(mInputAllocation.bytesSize) // 1280*720*1.5
-                mInputAllocation.copyTo(arr)
+            when (processingMode) {
+                ProcessingMode.ORIGINAL -> {
+                    originalProcessor.process(mInputAllocation, outputAllocation)
+                }
 
-//                for( i in 0 until (mInputAllocation.bytesSize/1.5).toInt()) {
+                ProcessingMode.BRADLEY_RS -> {
+                    bradleyFsProcessor.process(inputAllocation, outputAllocation)
+                }
+
+                else -> {
+                    // TODO
+                }
+            }
+
+
+
+//                val arr = ByteArray(mInputAllocation.bytesSize) // 1280*720*1.5
+//                mInputAllocation.copyTo(arr)
+//
+//               for( i in 0 until (mInputAllocation.bytesSize/1.5).toInt()) {
+//                    val th = bradleyThresholdCPU(arr, i)
 //                    if(arr[i] < 0) {
 //                        arr[i] = -1;
 //                    } else {
 //                        arr[i] = 0;
-//                    }
+//                   }
 //                }
+//
+//                mInputAllocation.copyFrom(arr)
+//                mBinarizationScript._gDoMerge = 0
 
-                mInputAllocation.copyFrom(arr)
-                mBinarizationScript._gDoMerge = 0
-            }
-            mBinarizationScript._gCurrentFrame = mInputAllocation
-            // Run processing pass
-            mBinarizationScript.forEach_binarize(mOutputAllocation)
-            mOutputAllocation.ioSend()
+            outputAllocation.ioSend()
 
             val endTime = System.currentTimeMillis()
             processingTime.onNext(endTime - startTime)
