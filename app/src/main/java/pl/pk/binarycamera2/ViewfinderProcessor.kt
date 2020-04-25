@@ -119,9 +119,4 @@ class ViewfinderProcessor(rs: RenderScript, dimensions: Size) {
         }
     }
 
-    companion object {
-        const val MODE_NORMAL = 0
-        const val MODE_BINARY = 1
-    }
-
 }
