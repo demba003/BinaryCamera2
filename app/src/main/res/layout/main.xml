@@ -44,6 +44,7 @@
             android:id="@+id/originalPreviewButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:enabled="false"
             android:text="@string/original_preview" />
     </LinearLayout>
 
@@ -68,14 +69,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/bradley_kotlin" />
+                android:text="@string/bradley_kotlin"
+                android:visibility="invisible" />
 
             <Button
                 android:id="@+id/bradleyCppButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/bradley_cpp" />
+                android:text="@string/bradley_cpp"
+                android:visibility="invisible" />
 
             <Button
                 android:id="@+id/bradleyRsButton"
@@ -95,21 +98,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/sauvola_kotlin" />
+                android:text="@string/sauvola_kotlin"
+                android:visibility="invisible" />
 
             <Button
                 android:id="@+id/sauvolaCppButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/sauvola_cpp" />
+                android:text="@string/sauvola_cpp"
+                android:visibility="invisible" />
 
             <Button
                 android:id="@+id/sauvolaRsButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/sauvola_rs" />
+                android:text="@string/sauvola_rs"
+                android:visibility="invisible" />
         </LinearLayout>
 
     </LinearLayout>
