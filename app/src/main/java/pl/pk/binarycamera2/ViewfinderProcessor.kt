@@ -11,6 +11,7 @@ import android.renderscript.Type
 import android.util.Size
 import android.view.Surface
 import io.reactivex.rxjava3.subjects.PublishSubject
+import pl.pk.binarizer.jvm.SimpleBinarization
 import pl.pk.binarizer.rs.BradleyBinarizationFS
 import pl.pk.binarizer.rs.YuvToMonochrome
 
@@ -39,6 +40,11 @@ class ViewfinderProcessor(rs: RenderScript, dimensions: Size) {
         Handler(HandlerThread("ViewfinderProcessor").apply { start() }.looper)
 
     private val originalProcessor = YuvToMonochrome(rs)
+
+    private val simpleKotlinProcessor = SimpleBinarization(rs)
+    private val simpleCppProcessor = pl.pk.binarizer.cpp.SimpleBinarization(rs)
+    private val simpleRsProcessor = pl.pk.binarizer.rs.SimpleBinarization(rs)
+
     private val bradleyFsProcessor = BradleyBinarizationFS(rs)
 
     var processingMode = ProcessingMode.ORIGINAL
@@ -82,35 +88,16 @@ class ViewfinderProcessor(rs: RenderScript, dimensions: Size) {
             }
 
             when (processingMode) {
-                ProcessingMode.ORIGINAL -> {
-                    originalProcessor.process(mInputAllocation, outputAllocation)
-                }
-
-                ProcessingMode.BRADLEY_RS -> {
-                    bradleyFsProcessor.process(inputAllocation, outputAllocation)
-                }
+                ProcessingMode.ORIGINAL -> originalProcessor.process(mInputAllocation, outputAllocation)
+                ProcessingMode.SIMPLE_KOTLIN -> simpleKotlinProcessor.process(inputAllocation, outputAllocation)
+                ProcessingMode.SIMPLE_RS -> simpleRsProcessor.process(inputAllocation, outputAllocation)
+                ProcessingMode.SIMPLE_CPP -> simpleCppProcessor.process(inputAllocation, outputAllocation)
+                ProcessingMode.BRADLEY_RS -> bradleyFsProcessor.process(inputAllocation, outputAllocation)
 
                 else -> {
                     // TODO
                 }
             }
-
-
-
-//                val arr = ByteArray(mInputAllocation.bytesSize) // 1280*720*1.5
-//                mInputAllocation.copyTo(arr)
-//
-//               for( i in 0 until (mInputAllocation.bytesSize/1.5).toInt()) {
-//                    val th = bradleyThresholdCPU(arr, i)
-//                    if(arr[i] < 0) {
-//                        arr[i] = -1;
-//                    } else {
-//                        arr[i] = 0;
-//                   }
-//                }
-//
-//                mInputAllocation.copyFrom(arr)
-//                mBinarizationScript._gDoMerge = 0
 
             outputAllocation.ioSend()
 

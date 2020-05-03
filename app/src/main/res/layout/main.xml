@@ -65,12 +65,39 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/simpleKotlinButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/simple_kotlin" />
+
+            <Button
+                android:id="@+id/simpleCppButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/simple_cpp" />
+
+            <Button
+                android:id="@+id/simpleRsButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/simple_rs"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
                 android:id="@+id/bradleyKotlinButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/bradley_kotlin"
-                android:visibility="invisible" />
+                android:visibility="invisible"
+                android:text="@string/bradley_kotlin" />
 
             <Button
                 android:id="@+id/bradleyCppButton"
@@ -86,36 +113,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/bradley_rs" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/sauvolaKotlinButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/sauvola_kotlin"
-                android:visibility="invisible" />
-
-            <Button
-                android:id="@+id/sauvolaCppButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/sauvola_cpp"
-                android:visibility="invisible" />
-
-            <Button
-                android:id="@+id/sauvolaRsButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/sauvola_rs"
-                android:visibility="invisible" />
         </LinearLayout>
 
     </LinearLayout>

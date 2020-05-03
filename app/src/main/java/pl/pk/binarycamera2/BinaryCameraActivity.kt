@@ -16,7 +16,13 @@ class BinaryCameraActivity : AppCompatActivity() {
 
     private val outputSize: Size by inject()
     private val viewModel: BinaryCameraViewModel by viewModel()
-    private val buttons: List<Button> by lazy { listOf(originalPreviewButton, bradleyRsButton) }
+    private val buttons: List<Button> by lazy {
+        listOf(
+            originalPreviewButton,
+            simpleKotlinButton, simpleCppButton, simpleRsButton,
+            bradleyKotlinButton, bradleyCppButton, bradleyRsButton
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,12 +45,13 @@ class BinaryCameraActivity : AppCompatActivity() {
     }
 
     private fun initListeners() {
-        originalPreviewButton.setOnClickListener {
-            viewModel.switchMode(ProcessingMode.ORIGINAL)
-        }
-        bradleyRsButton.setOnClickListener {
-            viewModel.switchMode(ProcessingMode.BRADLEY_RS)
-        }
+        originalPreviewButton.setOnClickListener { viewModel.switchMode(ProcessingMode.ORIGINAL) }
+
+        simpleKotlinButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_KOTLIN) }
+        simpleCppButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_CPP) }
+        simpleRsButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_RS) }
+
+        bradleyRsButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_RS) }
 
         viewModel.processingTime
             .observeOn(AndroidSchedulers.mainThread())
@@ -60,12 +67,12 @@ class BinaryCameraActivity : AppCompatActivity() {
                 buttons.forEach { it.enable() }
                 when (mode) {
                     ProcessingMode.ORIGINAL -> originalPreviewButton.disable()
-                    ProcessingMode.BRADLEY_KOTLIN -> TODO()
-                    ProcessingMode.BRADLEY_CPP -> TODO()
+                    ProcessingMode.BRADLEY_KOTLIN -> bradleyKotlinButton.disable()
+                    ProcessingMode.BRADLEY_CPP -> bradleyCppButton.disable()
                     ProcessingMode.BRADLEY_RS -> bradleyRsButton.disable()
-                    ProcessingMode.SAUVOLA_KOTLIN -> TODO()
-                    ProcessingMode.SAUVOLA_CPP -> TODO()
-                    ProcessingMode.SAUVOLA_RS -> TODO()
+                    ProcessingMode.SIMPLE_KOTLIN -> simpleKotlinButton.disable()
+                    ProcessingMode.SIMPLE_CPP -> simpleCppButton.disable()
+                    ProcessingMode.SIMPLE_RS -> simpleRsButton.disable()
                     else -> {
                         /* no-op */
                     }

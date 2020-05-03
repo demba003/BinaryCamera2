@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">BinaryCamera2</string>
     <string name="original_preview">Original preview</string>
+    <string name="simple_kotlin">Simple Kotlin</string>
+    <string name="simple_cpp">Simple C++</string>
+    <string name="simple_rs">Simple RS</string>
     <string name="bradley_kotlin">Bradley Kotlin</string>
     <string name="bradley_cpp">Bradley C++</string>
     <string name="bradley_rs">Bradley RS</string>
