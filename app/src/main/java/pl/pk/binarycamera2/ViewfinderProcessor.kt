@@ -11,7 +11,7 @@ import android.renderscript.Type
 import android.util.Size
 import android.view.Surface
 import io.reactivex.rxjava3.subjects.PublishSubject
-import pl.pk.binarizer.jvm.SimpleBinarization
+import pl.pk.binarizer.jvm.BradleyBinarization
 import pl.pk.binarizer.rs.BradleyBinarizationFS
 import pl.pk.binarizer.rs.YuvToMonochrome
 
@@ -41,10 +41,11 @@ class ViewfinderProcessor(rs: RenderScript, dimensions: Size) {
 
     private val originalProcessor = YuvToMonochrome(rs)
 
-    private val simpleKotlinProcessor = SimpleBinarization(rs)
+    private val simpleKtProcessor = pl.pk.binarizer.jvm.SimpleBinarization(rs)
     private val simpleCppProcessor = pl.pk.binarizer.cpp.SimpleBinarization(rs)
     private val simpleRsProcessor = pl.pk.binarizer.rs.SimpleBinarization(rs)
 
+    private val bradleyKtProcessor = BradleyBinarization(rs)
     private val bradleyFsProcessor = BradleyBinarizationFS(rs)
 
     var processingMode = ProcessingMode.ORIGINAL
@@ -89,9 +90,11 @@ class ViewfinderProcessor(rs: RenderScript, dimensions: Size) {
 
             when (processingMode) {
                 ProcessingMode.ORIGINAL -> originalProcessor.process(mInputAllocation, outputAllocation)
-                ProcessingMode.SIMPLE_KOTLIN -> simpleKotlinProcessor.process(inputAllocation, outputAllocation)
+                ProcessingMode.SIMPLE_KT -> simpleKtProcessor.process(inputAllocation, outputAllocation)
                 ProcessingMode.SIMPLE_RS -> simpleRsProcessor.process(inputAllocation, outputAllocation)
                 ProcessingMode.SIMPLE_CPP -> simpleCppProcessor.process(inputAllocation, outputAllocation)
+
+                ProcessingMode.BRADLEY_KT -> bradleyKtProcessor.process(inputAllocation, outputAllocation)
                 ProcessingMode.BRADLEY_RS -> bradleyFsProcessor.process(inputAllocation, outputAllocation)
 
                 else -> {

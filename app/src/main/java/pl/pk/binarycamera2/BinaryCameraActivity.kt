@@ -47,10 +47,11 @@ class BinaryCameraActivity : AppCompatActivity() {
     private fun initListeners() {
         originalPreviewButton.setOnClickListener { viewModel.switchMode(ProcessingMode.ORIGINAL) }
 
-        simpleKotlinButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_KOTLIN) }
+        simpleKotlinButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_KT) }
         simpleCppButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_CPP) }
         simpleRsButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_RS) }
 
+        bradleyKotlinButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_KT) }
         bradleyRsButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_RS) }
 
         viewModel.processingTime
@@ -67,10 +68,10 @@ class BinaryCameraActivity : AppCompatActivity() {
                 buttons.forEach { it.enable() }
                 when (mode) {
                     ProcessingMode.ORIGINAL -> originalPreviewButton.disable()
-                    ProcessingMode.BRADLEY_KOTLIN -> bradleyKotlinButton.disable()
+                    ProcessingMode.BRADLEY_KT -> bradleyKotlinButton.disable()
                     ProcessingMode.BRADLEY_CPP -> bradleyCppButton.disable()
                     ProcessingMode.BRADLEY_RS -> bradleyRsButton.disable()
-                    ProcessingMode.SIMPLE_KOTLIN -> simpleKotlinButton.disable()
+                    ProcessingMode.SIMPLE_KT -> simpleKotlinButton.disable()
                     ProcessingMode.SIMPLE_CPP -> simpleCppButton.disable()
                     ProcessingMode.SIMPLE_RS -> simpleRsButton.disable()
                     else -> {
