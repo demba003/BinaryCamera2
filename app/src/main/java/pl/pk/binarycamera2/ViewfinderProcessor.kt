@@ -11,8 +11,6 @@ import android.renderscript.Type
 import android.util.Size
 import android.view.Surface
 import io.reactivex.rxjava3.subjects.PublishSubject
-import pl.pk.binarizer.jvm.BradleyBinarization
-import pl.pk.binarizer.rs.BradleyBinarizationFS
 import pl.pk.binarizer.rs.YuvToMonochrome
 
 class ViewfinderProcessor(rs: RenderScript, dimensions: Size) {
@@ -45,8 +43,9 @@ class ViewfinderProcessor(rs: RenderScript, dimensions: Size) {
     private val simpleCppProcessor = pl.pk.binarizer.cpp.SimpleBinarization(rs)
     private val simpleRsProcessor = pl.pk.binarizer.rs.SimpleBinarization(rs)
 
-    private val bradleyKtProcessor = BradleyBinarization(rs)
-    private val bradleyFsProcessor = BradleyBinarizationFS(rs)
+    private val bradleyKtProcessor = pl.pk.binarizer.jvm.BradleyBinarization(rs)
+    private val bradleyCppProcessor = pl.pk.binarizer.cpp.BradleyBinarization(rs)
+    private val bradleyFsProcessor = pl.pk.binarizer.rs.BradleyBinarizationFS(rs)
 
     var processingMode = ProcessingMode.ORIGINAL
     val processingTime: PublishSubject<Long> = PublishSubject.create<Long>()
@@ -90,16 +89,14 @@ class ViewfinderProcessor(rs: RenderScript, dimensions: Size) {
 
             when (processingMode) {
                 ProcessingMode.ORIGINAL -> originalProcessor.process(mInputAllocation, outputAllocation)
+
                 ProcessingMode.SIMPLE_KT -> simpleKtProcessor.process(inputAllocation, outputAllocation)
                 ProcessingMode.SIMPLE_RS -> simpleRsProcessor.process(inputAllocation, outputAllocation)
                 ProcessingMode.SIMPLE_CPP -> simpleCppProcessor.process(inputAllocation, outputAllocation)
 
                 ProcessingMode.BRADLEY_KT -> bradleyKtProcessor.process(inputAllocation, outputAllocation)
+                ProcessingMode.BRADLEY_CPP -> bradleyCppProcessor.process(inputAllocation, outputAllocation)
                 ProcessingMode.BRADLEY_RS -> bradleyFsProcessor.process(inputAllocation, outputAllocation)
-
-                else -> {
-                    // TODO
-                }
             }
 
             outputAllocation.ioSend()

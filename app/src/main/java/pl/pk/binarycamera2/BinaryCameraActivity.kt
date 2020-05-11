@@ -52,6 +52,7 @@ class BinaryCameraActivity : AppCompatActivity() {
         simpleRsButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_RS) }
 
         bradleyKotlinButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_KT) }
+        bradleyCppButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_CPP) }
         bradleyRsButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_RS) }
 
         viewModel.processingTime
