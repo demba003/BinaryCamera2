@@ -7,7 +7,7 @@ import pl.pk.binarizer.rs.ScriptC_YuvToMonochrome
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
-class SimpleBinarization(private val rs: RenderScript) : Processor {
+class SimpleBinarization(rs: RenderScript) : Processor {
 
     private val kernel = ScriptC_YuvToMonochrome(rs)
     private val threadCount = Runtime.getRuntime().availableProcessors()

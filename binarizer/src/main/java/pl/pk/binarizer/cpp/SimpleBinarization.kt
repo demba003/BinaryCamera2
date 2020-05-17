@@ -5,10 +5,10 @@ import android.renderscript.RenderScript
 import pl.pk.binarizer.Processor
 import pl.pk.binarizer.rs.ScriptC_YuvToMonochrome
 
-class SimpleBinarization(private val rs: RenderScript) : Processor {
+class SimpleBinarization(rs: RenderScript) : Processor {
 
     private val kernel = ScriptC_YuvToMonochrome(rs)
-    external fun binarize(input: ByteArray, size: Int)
+    private external fun binarize(input: ByteArray, output: ByteArray, size: Int)
 
     init {
         System.loadLibrary("native-lib")
@@ -16,13 +16,14 @@ class SimpleBinarization(private val rs: RenderScript) : Processor {
 
     override fun process(input: Allocation, output: Allocation) {
         val monochromeBytesSize = (input.bytesSize / 1.5).toInt()
-        val bytes = ByteArray(monochromeBytesSize)
+        val originalBytes = ByteArray(monochromeBytesSize)
+        val processedBytes = ByteArray(monochromeBytesSize)
 
-        input.copy1DRangeTo(0, monochromeBytesSize, bytes)
+        input.copy1DRangeTo(0, monochromeBytesSize, originalBytes)
 
-        binarize(bytes, monochromeBytesSize)
+        binarize(originalBytes, processedBytes, monochromeBytesSize)
 
-        input.copy1DRangeFrom(0, monochromeBytesSize, bytes)
+        input.copy1DRangeFrom(0, monochromeBytesSize, processedBytes)
 
         kernel._currentFrame = input
         kernel.forEach_process(output)
