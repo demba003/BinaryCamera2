@@ -11,6 +11,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.main.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import pl.pk.binarizer.ProcessingMode
 
 class BinaryCameraActivity : AppCompatActivity() {
 
@@ -46,6 +47,7 @@ class BinaryCameraActivity : AppCompatActivity() {
 
     private fun initListeners() {
         originalPreviewButton.setOnClickListener { viewModel.switchMode(ProcessingMode.ORIGINAL) }
+        benchmarkButton.setOnClickListener { viewModel.benchmark() }
 
         simpleKotlinButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_KT) }
         simpleCppButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_CPP) }
@@ -57,11 +59,17 @@ class BinaryCameraActivity : AppCompatActivity() {
 
         viewModel.processingTime
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { processingFpsLabel.text = getString(R.string.processing_fps, 1000 / it) }
+            .subscribe {
+                if (it != 0L)
+                    processingFpsLabel.text = getString(R.string.processing_fps, 1000 / it)
+            }
 
         viewModel.drawTime
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { previewFpsLabel.text = getString(R.string.preview_fps, 1000 / it) }
+            .subscribe {
+                if (it != 0L)
+                    previewFpsLabel.text = getString(R.string.preview_fps, 1000 / it)
+            }
 
         viewModel.processingMode
             .observeOn(AndroidSchedulers.mainThread())

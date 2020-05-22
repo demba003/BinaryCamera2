@@ -1,10 +1,14 @@
 package pl.pk.binarycamera2
 
+import android.graphics.ImageFormat
 import android.hardware.camera2.*
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
+import android.renderscript.Allocation
+import android.renderscript.Element
 import android.renderscript.RenderScript
+import android.renderscript.Type
 import android.util.Range
 import android.util.Size
 import androidx.core.content.getSystemService
@@ -18,27 +22,50 @@ val mainModule = module {
     viewModel { BinaryCameraViewModel() }
 
     factory { RenderScript.create(androidContext()) }
-    single { ViewfinderProcessor(get(), get()) }
-    single { get<ViewfinderProcessor>().inputSurface }
+    single { ProcessorProxy(get()) }
+
+    factory(named("YuvTypeBuilder")) {
+        Type.Builder(get(), Element.YUV(get())).run {
+            setX(get<Size>().width)
+            setY(get<Size>().height)
+            setYuvFormat(ImageFormat.YUV_420_888)
+            create()
+        }
+    }
+
+    factory(named("RGBATypeBuilder")) {
+        Type.Builder(get(), Element.RGBA_8888(get())).run {
+            setX(get<Size>().width)
+            setY(get<Size>().height)
+            create()
+        }
+    }
+
+    factory(named("Input")) {
+        Allocation.createTyped(
+            get(),
+            get(named("YuvTypeBuilder")),
+            Allocation.USAGE_IO_INPUT or Allocation.USAGE_SCRIPT
+        )
+    }
+
+    factory(named("Output")) {
+        Allocation.createTyped(
+            get(),
+            get(named("RGBATypeBuilder")),
+            Allocation.USAGE_IO_OUTPUT or Allocation.USAGE_SCRIPT
+        )
+    }
 }
 
 val cameraModule = module {
     factory { Size(1280, 720) }
     factory { androidContext().getSystemService<CameraManager>()!! }
 
-    factory(named("CameraHandler")) {
-        val cameraThread = HandlerThread("CameraThread").apply { start() }
-        Handler(cameraThread.looper)
-    }
-
-    factory(named("MainHandler")) {
-        Handler(Looper.getMainLooper())
-    }
-
     factory { (device: CameraDevice) ->
         device.createCaptureRequest(CameraDevice.TEMPLATE_RECORD).run {
             set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range.create(30, 30))
-            addTarget(get())
+            addTarget(get<ProcessorProxy>().getInputSurface())
             build()
         }
     }

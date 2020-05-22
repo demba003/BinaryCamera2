@@ -1,4 +1,4 @@
-package pl.pk.binarycamera2
+package pl.pk.binarizer
 
 enum class ProcessingMode {
     ORIGINAL,

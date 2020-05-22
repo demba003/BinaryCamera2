@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">BinaryCamera2</string>
     <string name="original_preview">Original preview</string>
+    <string name="start_benchmark">Start benchmark</string>
     <string name="simple_kotlin">Simple Kotlin</string>
     <string name="simple_cpp">Simple C++</string>
     <string name="simple_rs">Simple RS</string>
