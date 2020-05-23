@@ -34,6 +34,7 @@ class ProcessorProxy(rs: RenderScript) : Processor, Benchmarkable, KoinComponent
         ProcessingMode.SIMPLE_RS to pl.pk.binarizer.rs.SimpleBinarization(rs),
 
         ProcessingMode.BRADLEY_KT to pl.pk.binarizer.jvm.BradleyBinarization(rs),
+        ProcessingMode.BRADLEY_INT_KT to pl.pk.binarizer.jvm.BradleyIntegralBinarization(rs),
         ProcessingMode.BRADLEY_CPP to pl.pk.binarizer.cpp.BradleyBinarization(rs),
         ProcessingMode.BRADLEY_RS to pl.pk.binarizer.rs.BradleyBinarizationFS(rs)
     )

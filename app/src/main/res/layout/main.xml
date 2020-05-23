@@ -89,35 +89,50 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/simple_rs"/>
+                android:text="@string/simple_rs" />
         </LinearLayout>
 
-        <LinearLayout
+        <HorizontalScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content">
 
-            <Button
-                android:id="@+id/bradleyKotlinButton"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/bradley_kotlin" />
+                android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/bradleyCppButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/bradley_cpp" />
+                <Button
+                    android:id="@+id/bradleyKotlinButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bradley_kotlin" />
 
-            <Button
-                android:id="@+id/bradleyRsButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/bradley_rs" />
-        </LinearLayout>
+                <Button
+                    android:id="@+id/bradleyIntKotlinButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bradley_int_kotlin" />
+
+                <Button
+                    android:id="@+id/bradleyCppButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bradley_cpp" />
+
+                <Button
+                    android:id="@+id/bradleyIntCppButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bradley_int_cpp" />
+
+                <Button
+                    android:id="@+id/bradleyRsButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bradley_rs" />
+            </LinearLayout>
+
+        </HorizontalScrollView>
 
     </LinearLayout>
 

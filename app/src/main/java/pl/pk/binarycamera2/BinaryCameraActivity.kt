@@ -21,7 +21,8 @@ class BinaryCameraActivity : AppCompatActivity() {
         listOf(
             originalPreviewButton,
             simpleKotlinButton, simpleCppButton, simpleRsButton,
-            bradleyKotlinButton, bradleyCppButton, bradleyRsButton
+            bradleyKotlinButton, bradleyCppButton, bradleyRsButton,
+            bradleyIntKotlinButton, bradleyIntCppButton
         )
     }
 
@@ -54,7 +55,9 @@ class BinaryCameraActivity : AppCompatActivity() {
         simpleRsButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_RS) }
 
         bradleyKotlinButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_KT) }
+        bradleyIntKotlinButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_INT_KT) }
         bradleyCppButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_CPP) }
+        bradleyIntCppButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_INT_CPP) }
         bradleyRsButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_RS) }
 
         viewModel.processingTime
@@ -78,6 +81,7 @@ class BinaryCameraActivity : AppCompatActivity() {
                 when (mode) {
                     ProcessingMode.ORIGINAL -> originalPreviewButton.disable()
                     ProcessingMode.BRADLEY_KT -> bradleyKotlinButton.disable()
+                    ProcessingMode.BRADLEY_INT_KT -> bradleyIntKotlinButton.disable()
                     ProcessingMode.BRADLEY_CPP -> bradleyCppButton.disable()
                     ProcessingMode.BRADLEY_RS -> bradleyRsButton.disable()
                     ProcessingMode.SIMPLE_KT -> simpleKotlinButton.disable()
