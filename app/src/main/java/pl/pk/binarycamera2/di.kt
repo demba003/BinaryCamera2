@@ -2,9 +2,6 @@ package pl.pk.binarycamera2
 
 import android.graphics.ImageFormat
 import android.hardware.camera2.*
-import android.os.Handler
-import android.os.HandlerThread
-import android.os.Looper
 import android.renderscript.Allocation
 import android.renderscript.Element
 import android.renderscript.RenderScript

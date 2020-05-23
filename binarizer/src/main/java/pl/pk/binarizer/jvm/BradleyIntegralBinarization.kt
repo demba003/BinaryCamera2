@@ -51,9 +51,9 @@ class BradleyIntegralBinarization(rs: RenderScript) : Processor {
         val height = 720
         val width = 1280
         for (row in 0 until height) {
-            var sum: Int = 0
+            var sum = 0
             for (column in 0 until width) {
-                sum += originalBytes[column + width * row]
+                sum += originalBytes[column + width * row].toInt() and 0xFF
                 if (row == 0) {
                     integral[column + width * row] = sum
                 } else {

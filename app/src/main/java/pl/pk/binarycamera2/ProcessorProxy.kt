@@ -36,6 +36,7 @@ class ProcessorProxy(rs: RenderScript) : Processor, Benchmarkable, KoinComponent
         ProcessingMode.BRADLEY_KT to pl.pk.binarizer.jvm.BradleyBinarization(rs),
         ProcessingMode.BRADLEY_INT_KT to pl.pk.binarizer.jvm.BradleyIntegralBinarization(rs),
         ProcessingMode.BRADLEY_CPP to pl.pk.binarizer.cpp.BradleyBinarization(rs),
+        ProcessingMode.BRADLEY_INT_CPP to pl.pk.binarizer.cpp.BradleyIntegralBinarization(rs),
         ProcessingMode.BRADLEY_RS to pl.pk.binarizer.rs.BradleyBinarizationFS(rs)
     )
 
@@ -70,7 +71,7 @@ class ProcessorProxy(rs: RenderScript) : Processor, Benchmarkable, KoinComponent
     }
 
     override fun benchmark() {
-        thread() {
+        thread {
             ProcessingMode.values().forEach {
                 setProcessingMode(it)
 

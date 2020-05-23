@@ -83,6 +83,7 @@ class BinaryCameraActivity : AppCompatActivity() {
                     ProcessingMode.BRADLEY_KT -> bradleyKotlinButton.disable()
                     ProcessingMode.BRADLEY_INT_KT -> bradleyIntKotlinButton.disable()
                     ProcessingMode.BRADLEY_CPP -> bradleyCppButton.disable()
+                    ProcessingMode.BRADLEY_INT_CPP -> bradleyIntCppButton.disable()
                     ProcessingMode.BRADLEY_RS -> bradleyRsButton.disable()
                     ProcessingMode.SIMPLE_KT -> simpleKotlinButton.disable()
                     ProcessingMode.SIMPLE_CPP -> simpleCppButton.disable()

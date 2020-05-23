@@ -4,7 +4,7 @@ import android.renderscript.Allocation
 import android.renderscript.RenderScript
 import pl.pk.binarizer.Processor
 
-class BradleyBinarizationFS(private val rs: RenderScript) : Processor {
+class BradleyBinarizationFS(rs: RenderScript) : Processor {
 
     private val kernel = ScriptC_BradleyBinarizationFS(rs)
 
