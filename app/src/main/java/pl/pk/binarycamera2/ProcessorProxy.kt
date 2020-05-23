@@ -3,6 +3,7 @@ package pl.pk.binarycamera2
 import android.renderscript.Allocation
 import android.renderscript.RenderScript
 import android.util.Log
+import android.util.Size
 import android.view.Surface
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.koin.core.KoinComponent
@@ -17,6 +18,7 @@ import kotlin.concurrent.thread
 class ProcessorProxy(rs: RenderScript) : Processor, Benchmarkable, KoinComponent {
     private val inputAllocation: Allocation by inject(named("Input"))
     private val outputAllocation: Allocation by inject(named("Output"))
+    private val previewSize: Size by inject()
     private var currentMode = ProcessingMode.ORIGINAL
 
     val processingTime: PublishSubject<Long> = PublishSubject.create()
@@ -33,10 +35,10 @@ class ProcessorProxy(rs: RenderScript) : Processor, Benchmarkable, KoinComponent
         ProcessingMode.SIMPLE_CPP to pl.pk.binarizer.cpp.SimpleBinarization(rs),
         ProcessingMode.SIMPLE_RS to pl.pk.binarizer.rs.SimpleBinarization(rs),
 
-        ProcessingMode.BRADLEY_KT to pl.pk.binarizer.jvm.BradleyBinarization(rs),
-        ProcessingMode.BRADLEY_INT_KT to pl.pk.binarizer.jvm.BradleyIntegralBinarization(rs),
-        ProcessingMode.BRADLEY_CPP to pl.pk.binarizer.cpp.BradleyBinarization(rs),
-        ProcessingMode.BRADLEY_INT_CPP to pl.pk.binarizer.cpp.BradleyIntegralBinarization(rs),
+        ProcessingMode.BRADLEY_KT to pl.pk.binarizer.jvm.BradleyBinarization(rs, previewSize),
+        ProcessingMode.BRADLEY_INT_KT to pl.pk.binarizer.jvm.BradleyIntegralBinarization(rs, previewSize),
+        ProcessingMode.BRADLEY_CPP to pl.pk.binarizer.cpp.BradleyBinarization(rs, previewSize),
+        ProcessingMode.BRADLEY_INT_CPP to pl.pk.binarizer.cpp.BradleyIntegralBinarization(rs, previewSize),
         ProcessingMode.BRADLEY_RS to pl.pk.binarizer.rs.BradleyBinarizationFS(rs)
     )
 

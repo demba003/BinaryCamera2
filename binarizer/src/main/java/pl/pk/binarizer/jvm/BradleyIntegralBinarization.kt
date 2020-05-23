@@ -2,12 +2,13 @@ package pl.pk.binarizer.jvm
 
 import android.renderscript.Allocation
 import android.renderscript.RenderScript
+import android.util.Size
 import pl.pk.binarizer.Processor
 import pl.pk.binarizer.rs.ScriptC_YuvToMonochrome
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
-class BradleyIntegralBinarization(rs: RenderScript) : Processor {
+class BradleyIntegralBinarization(rs: RenderScript, private val dimensions: Size) : Processor {
 
     private val kernel = ScriptC_YuvToMonochrome(rs)
     private val threadCount = Runtime.getRuntime().availableProcessors()
@@ -48,27 +49,25 @@ class BradleyIntegralBinarization(rs: RenderScript) : Processor {
     }
 
     private fun calculateIntegral(originalBytes: ByteArray, integral: IntArray) {
-        val height = 720
-        val width = 1280
-        for (row in 0 until height) {
+        for (row in 0 until dimensions.height) {
             var sum = 0
-            for (column in 0 until width) {
-                sum += originalBytes[column + width * row].toInt() and 0xFF
+            for (column in 0 until dimensions.width) {
+                sum += originalBytes[column + dimensions.width * row].toInt() and 0xFF
                 if (row == 0) {
-                    integral[column + width * row] = sum
+                    integral[column + dimensions.width * row] = sum
                 } else {
-                    integral[column + width * row] = integral[column + width * (row - 1)] + sum
+                    integral[column + dimensions.width * row] = integral[column + dimensions.width * (row - 1)] + sum
                 }
             }
         }
     }
 
     private fun getIntegralAverage(index: Int, integral: IntArray): Int {
-        val one = integral[index + 7 * 1280 + 7]
-        val two = integral[index - 7 * 1280 - 7]
-        val three = integral[index + 7 * 1280 - 7]
-        val four = integral[index - 7 * 1280 + 7]
-        return (one + two - three - four) / 225
+        val one = integral[index + radius * dimensions.width + radius]
+        val two = integral[index - radius * dimensions.width - radius]
+        val three = integral[index + radius * dimensions.width - radius]
+        val four = integral[index - radius * dimensions.width + radius]
+        return (one + two - three - four) / area
     }
 
     private fun processSegment(
@@ -79,7 +78,7 @@ class BradleyIntegralBinarization(rs: RenderScript) : Processor {
         threadId: Int
     ) {
         for (i in threadId until size step threadCount) {
-            val th = threshold(integral, i, 1280, 720)
+            val th = threshold(integral, i)
             if ((originalBytes[i].toInt() and 0xFF) > th) {
                 processedBytes[i] = -1
             } else {
@@ -88,11 +87,15 @@ class BradleyIntegralBinarization(rs: RenderScript) : Processor {
         }
     }
 
-    private fun threshold(integral: IntArray, index: Int, cols: Int, rows: Int): Int {
-        if (index + 7 * 1280 + 7 >= cols * rows || index - 7 * 1280 - 7 < 0) return 127
+    private fun threshold(integral: IntArray, index: Int): Int {
+        if (index + radius * dimensions.width + radius >= dimensions.width * dimensions.height || index - radius * dimensions.width - radius < 0) return 127
 
         val average = getIntegralAverage(index, integral)
         return average * 78 / 100
     }
 
+    companion object {
+        private const val radius = 7
+        private const val area = ((radius * 2 + 1) * (radius * 2 + 1))
+    }
 }

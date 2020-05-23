@@ -2,13 +2,14 @@ package pl.pk.binarizer.cpp
 
 import android.renderscript.Allocation
 import android.renderscript.RenderScript
+import android.util.Size
 import pl.pk.binarizer.Processor
 import pl.pk.binarizer.rs.ScriptC_YuvToMonochrome
 
-class BradleyBinarization(rs: RenderScript) : Processor {
+class BradleyBinarization(rs: RenderScript, private val dimensions: Size) : Processor {
 
     private val kernel = ScriptC_YuvToMonochrome(rs)
-    private external fun binarize(input: ByteArray, output: ByteArray, size: Int)
+    private external fun binarize(input: ByteArray, output: ByteArray, size: Int, width: Int, height: Int)
 
     init {
         System.loadLibrary("native-lib")
@@ -21,7 +22,7 @@ class BradleyBinarization(rs: RenderScript) : Processor {
 
         input.copy1DRangeTo(0, monochromeBytesSize, originalBytes)
 
-        binarize(originalBytes, processedBytes, monochromeBytesSize)
+        binarize(originalBytes, processedBytes, monochromeBytesSize, dimensions.width, dimensions.height)
 
         input.copy1DRangeFrom(0, monochromeBytesSize, processedBytes)
 

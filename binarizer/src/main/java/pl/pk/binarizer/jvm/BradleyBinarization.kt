@@ -2,12 +2,13 @@ package pl.pk.binarizer.jvm
 
 import android.renderscript.Allocation
 import android.renderscript.RenderScript
+import android.util.Size
 import pl.pk.binarizer.Processor
 import pl.pk.binarizer.rs.ScriptC_YuvToMonochrome
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
-class BradleyBinarization(rs: RenderScript) : Processor {
+class BradleyBinarization(rs: RenderScript, private val dimensions: Size) : Processor {
 
     private val kernel = ScriptC_YuvToMonochrome(rs)
     private val threadCount = Runtime.getRuntime().availableProcessors()
@@ -38,7 +39,7 @@ class BradleyBinarization(rs: RenderScript) : Processor {
 
     private fun processSegment(originalBytes: ByteArray, processedBytes: ByteArray, size: Int, threadId: Int) {
         for (i in threadId until size step threadCount) {
-            val th = threshold(originalBytes, i, 1280, 720)
+            val th = threshold(originalBytes, i)
             if ((originalBytes[i].toInt() and 0xFF) > th) {
                 processedBytes[i] = -1
             } else {
@@ -47,22 +48,27 @@ class BradleyBinarization(rs: RenderScript) : Processor {
         }
     }
 
-    private fun threshold(data: ByteArray, index: Int, cols: Int, rows: Int): Int {
+    private fun threshold(data: ByteArray, index: Int): Int {
         var sum: Long = 0
 
-        val start = index - cols * 7 - 7
-        val maxOffset = 7 * 2 * cols + 7 * 2
+        val start = index - dimensions.width * radius - radius
+        val maxOffset = radius * 2 * dimensions.width + radius * 2
 
-        if (start + maxOffset > cols * rows || start < 0) return 127
+        if (start + maxOffset > dimensions.width * dimensions.height || start < 0) return 127
 
-        for (y in 0 until 7 * 2) {
-            for (x in 0 until 7 * 2) {
-                sum += data[start + y * cols + x].toInt() and 0xFF
+        for (y in 0 until radius * 2) {
+            for (x in 0 until radius * 2) {
+                sum += data[start + y * dimensions.width + x].toInt() and 0xFF
             }
         }
 
-        val average = (sum / 225).toInt()
+        val average = (sum / area).toInt()
         return average * 78 / 100
+    }
+
+    companion object {
+        private const val radius = 7
+        private const val area = ((radius * 2 + 1) * (radius * 2 + 1))
     }
 
 }
