@@ -20,7 +20,7 @@ class BinaryCameraActivity : AppCompatActivity() {
     private val buttons: List<Button> by lazy {
         listOf(
             originalPreviewButton,
-            simpleKotlinButton, simpleCppButton, simpleRsButton,
+            simpleKotlinButton, simpleKtNativeButton, simpleCppButton, simpleRsButton,
             bradleyKotlinButton, bradleyCppButton, bradleyRsButton,
             bradleyIntKotlinButton, bradleyIntCppButton
         )
@@ -51,6 +51,7 @@ class BinaryCameraActivity : AppCompatActivity() {
         benchmarkButton.setOnClickListener { viewModel.benchmark() }
 
         simpleKotlinButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_KT) }
+        simpleKtNativeButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_KT_NATIVE) }
         simpleCppButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_CPP) }
         simpleRsButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_RS) }
 
@@ -86,6 +87,7 @@ class BinaryCameraActivity : AppCompatActivity() {
                     ProcessingMode.BRADLEY_INT_CPP -> bradleyIntCppButton.disable()
                     ProcessingMode.BRADLEY_RS -> bradleyRsButton.disable()
                     ProcessingMode.SIMPLE_KT -> simpleKotlinButton.disable()
+                    ProcessingMode.SIMPLE_KT_NATIVE -> simpleKtNativeButton.disable()
                     ProcessingMode.SIMPLE_CPP -> simpleCppButton.disable()
                     ProcessingMode.SIMPLE_RS -> simpleRsButton.disable()
                     else -> {

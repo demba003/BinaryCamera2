@@ -32,6 +32,7 @@ class ProcessorProxy(rs: RenderScript) : Processor, Benchmarkable, KoinComponent
         ProcessingMode.ORIGINAL to YuvToMonochrome(rs),
 
         ProcessingMode.SIMPLE_KT to pl.pk.binarizer.jvm.SimpleBinarization(rs),
+        ProcessingMode.SIMPLE_KT_NATIVE to pl.pk.binarizer.ktnative.SimpleBinarization(rs),
         ProcessingMode.SIMPLE_CPP to pl.pk.binarizer.cpp.SimpleBinarization(rs),
         ProcessingMode.SIMPLE_RS to pl.pk.binarizer.rs.SimpleBinarization(rs),
 

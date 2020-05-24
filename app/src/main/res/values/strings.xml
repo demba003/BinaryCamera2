@@ -4,6 +4,7 @@
     <string name="start_benchmark">Start benchmark</string>
     <string name="simple_kotlin">Simple Kotlin</string>
     <string name="simple_cpp">Simple C++</string>
+    <string name="simple_ktnative">Simple Kotlin/Native</string>
     <string name="simple_rs">Simple RS</string>
     <string name="bradley_kotlin">Bradley Kotlin</string>
     <string name="bradley_int_kotlin">Bradley Int Kotlin</string>

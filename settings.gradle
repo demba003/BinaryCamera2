@@ -1,3 +1,4 @@
 rootProject.name='BinaryCamera2'
 include ':app'
 include ':binarizer'
+include ':ktnative'
