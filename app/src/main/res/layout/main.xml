@@ -115,10 +115,22 @@
                     android:text="@string/bradley_kotlin" />
 
                 <Button
+                    android:id="@+id/bradleyKotlinNativeButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bradley_kotlin_native" />
+
+                <Button
                     android:id="@+id/bradleyIntKotlinButton"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:text="@string/bradley_int_kotlin" />
+
+                <Button
+                    android:id="@+id/bradleyIntKotlinNativeButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bradley_int_kotlin_native" />
 
                 <Button
                     android:id="@+id/bradleyCppButton"

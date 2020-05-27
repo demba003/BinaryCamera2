@@ -2,18 +2,17 @@
     <string name="app_name">BinaryCamera2</string>
     <string name="original_preview">Original preview</string>
     <string name="start_benchmark">Start benchmark</string>
-    <string name="simple_kotlin">Simple Kotlin</string>
+    <string name="simple_kotlin">Simple Kt/JVM</string>
     <string name="simple_cpp">Simple C++</string>
-    <string name="simple_ktnative">Simple Kotlin/Native</string>
+    <string name="simple_ktnative">Simple Kt/N</string>
     <string name="simple_rs">Simple RS</string>
-    <string name="bradley_kotlin">Bradley Kotlin</string>
-    <string name="bradley_int_kotlin">Bradley Int Kotlin</string>
+    <string name="bradley_kotlin">Bradley Kt/JVM</string>
+    <string name="bradley_kotlin_native">Bradley Kt/N</string>
+    <string name="bradley_int_kotlin">Bradley Int Kt/JVM</string>
+    <string name="bradley_int_kotlin_native">Bradley Int Kt/N</string>
     <string name="bradley_cpp">Bradley C++</string>
     <string name="bradley_int_cpp">Bradley Int C++</string>
     <string name="bradley_rs">Bradley RS</string>
-    <string name="sauvola_kotlin">Sauvola Kotlin</string>
-    <string name="sauvola_cpp">Sauvola C++</string>
-    <string name="sauvola_rs">Sauvola RS</string>
     <string name="preview_fps">Preview FPS: %d</string>
     <string name="processing_fps">Processing FPS: %d</string>
 </resources>

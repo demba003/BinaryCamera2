@@ -21,8 +21,8 @@ class BinaryCameraActivity : AppCompatActivity() {
         listOf(
             originalPreviewButton,
             simpleKotlinButton, simpleKtNativeButton, simpleCppButton, simpleRsButton,
-            bradleyKotlinButton, bradleyCppButton, bradleyRsButton,
-            bradleyIntKotlinButton, bradleyIntCppButton
+            bradleyKotlinButton, bradleyKotlinNativeButton, bradleyCppButton, bradleyRsButton,
+            bradleyIntKotlinButton, bradleyIntKotlinNativeButton, bradleyIntCppButton
         )
     }
 
@@ -56,7 +56,9 @@ class BinaryCameraActivity : AppCompatActivity() {
         simpleRsButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_RS) }
 
         bradleyKotlinButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_KT) }
+        bradleyKotlinNativeButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_KT_NATIVE) }
         bradleyIntKotlinButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_INT_KT) }
+        bradleyIntKotlinNativeButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_INT_KT_NATIVE) }
         bradleyCppButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_CPP) }
         bradleyIntCppButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_INT_CPP) }
         bradleyRsButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_RS) }
@@ -82,7 +84,9 @@ class BinaryCameraActivity : AppCompatActivity() {
                 when (mode) {
                     ProcessingMode.ORIGINAL -> originalPreviewButton.disable()
                     ProcessingMode.BRADLEY_KT -> bradleyKotlinButton.disable()
+                    ProcessingMode.BRADLEY_KT_NATIVE -> bradleyKotlinNativeButton.disable()
                     ProcessingMode.BRADLEY_INT_KT -> bradleyIntKotlinButton.disable()
+                    ProcessingMode.BRADLEY_INT_KT_NATIVE -> bradleyIntKotlinNativeButton.disable()
                     ProcessingMode.BRADLEY_CPP -> bradleyCppButton.disable()
                     ProcessingMode.BRADLEY_INT_CPP -> bradleyIntCppButton.disable()
                     ProcessingMode.BRADLEY_RS -> bradleyRsButton.disable()
