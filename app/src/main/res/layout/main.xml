@@ -47,11 +47,6 @@
             android:enabled="false"
             android:text="@string/original_preview" />
 
-        <Button
-            android:id="@+id/benchmarkButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/start_benchmark" />
     </LinearLayout>
 
     <LinearLayout
@@ -143,6 +138,12 @@
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:text="@string/bradley_int_cpp" />
+
+                <Button
+                    android:id="@+id/bradleyFsButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bradley_fs" />
 
                 <Button
                     android:id="@+id/bradleyRsButton"

@@ -21,7 +21,7 @@ class BinaryCameraActivity : AppCompatActivity() {
         listOf(
             originalPreviewButton,
             simpleKotlinButton, simpleKtNativeButton, simpleCppButton, simpleRsButton,
-            bradleyKotlinButton, bradleyKotlinNativeButton, bradleyCppButton, bradleyRsButton,
+            bradleyKotlinButton, bradleyKotlinNativeButton, bradleyCppButton, bradleyFsButton, bradleyRsButton,
             bradleyIntKotlinButton, bradleyIntKotlinNativeButton, bradleyIntCppButton
         )
     }
@@ -48,7 +48,6 @@ class BinaryCameraActivity : AppCompatActivity() {
 
     private fun initListeners() {
         originalPreviewButton.setOnClickListener { viewModel.switchMode(ProcessingMode.ORIGINAL) }
-        benchmarkButton.setOnClickListener { viewModel.benchmark() }
 
         simpleKotlinButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_KT) }
         simpleKtNativeButton.setOnClickListener { viewModel.switchMode(ProcessingMode.SIMPLE_KT_NATIVE) }
@@ -62,6 +61,7 @@ class BinaryCameraActivity : AppCompatActivity() {
         bradleyCppButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_CPP) }
         bradleyIntCppButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_INT_CPP) }
         bradleyRsButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_RS) }
+        bradleyFsButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_FS) }
 
         viewModel.processingTime
             .observeOn(AndroidSchedulers.mainThread())
@@ -90,6 +90,7 @@ class BinaryCameraActivity : AppCompatActivity() {
                     ProcessingMode.BRADLEY_CPP -> bradleyCppButton.disable()
                     ProcessingMode.BRADLEY_INT_CPP -> bradleyIntCppButton.disable()
                     ProcessingMode.BRADLEY_RS -> bradleyRsButton.disable()
+                    ProcessingMode.BRADLEY_FS -> bradleyFsButton.disable()
                     ProcessingMode.SIMPLE_KT -> simpleKotlinButton.disable()
                     ProcessingMode.SIMPLE_KT_NATIVE -> simpleKtNativeButton.disable()
                     ProcessingMode.SIMPLE_CPP -> simpleCppButton.disable()

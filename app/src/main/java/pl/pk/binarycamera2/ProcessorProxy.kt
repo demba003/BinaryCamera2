@@ -42,7 +42,8 @@ class ProcessorProxy(rs: RenderScript) : Processor, Benchmarkable, KoinComponent
         ProcessingMode.BRADLEY_INT_KT_NATIVE to pl.pk.binarizer.ktnative.BradleyIntegralBinarization(rs, previewSize),
         ProcessingMode.BRADLEY_CPP to pl.pk.binarizer.cpp.BradleyBinarization(rs, previewSize),
         ProcessingMode.BRADLEY_INT_CPP to pl.pk.binarizer.cpp.BradleyIntegralBinarization(rs, previewSize),
-        ProcessingMode.BRADLEY_RS to pl.pk.binarizer.rs.BradleyBinarizationFS(rs)
+        ProcessingMode.BRADLEY_FS to pl.pk.binarizer.rs.BradleyBinarizationFS(rs, previewSize),
+        ProcessingMode.BRADLEY_RS to pl.pk.binarizer.rs.BradleyBinarizationRS(rs, previewSize)
     )
 
     init {
@@ -57,6 +58,8 @@ class ProcessorProxy(rs: RenderScript) : Processor, Benchmarkable, KoinComponent
     fun setProcessingMode(mode: ProcessingMode) {
         currentMode = mode
         processingMode.onNext(mode)
+        totalProcessingTime = 0
+        processedFrames = 0
     }
 
     fun setOutputSurface(output: Surface?) {
@@ -73,19 +76,12 @@ class ProcessorProxy(rs: RenderScript) : Processor, Benchmarkable, KoinComponent
         lastFrameTime = end - start
         processedFrames++
         totalProcessingTime += lastFrameTime
-    }
 
-    override fun benchmark() {
-        thread {
-            ProcessingMode.values().forEach {
-                setProcessingMode(it)
-
-                while (processedFrames < 100) { }
-
-                Log.i("BENCHMARK", "$it | $processedFrames | ${getAverageTime()} | ${getAverageFPS()}")
-                totalProcessingTime = 0
-                processedFrames = 0
-            }
+        if (processedFrames == 100) {
+            Log.i("BENCHMARK", "$currentMode | $processedFrames | $totalProcessingTime | ${getAverageTime()} | ${getAverageFPS()}")
+            totalProcessingTime = 0
+            processedFrames = 0
         }
     }
+
 }

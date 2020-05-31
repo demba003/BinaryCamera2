@@ -119,10 +119,6 @@ class BinaryCameraViewModel : ViewModel(), KoinComponent {
         }
     }
 
-    fun benchmark() {
-        processor.benchmark()
-    }
-
     companion object {
         private val TAG = this::class.java.simpleName
     }
