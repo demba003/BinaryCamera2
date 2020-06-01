@@ -1,10 +1,15 @@
 import kotlinx.cinterop.*
 import platform.android.*
+import kotlin.native.concurrent.*
 
 //////////// CONSTANTS ////////////
 
 private const val radius = 7
 private const val area = ((radius * 2 + 1) * (radius * 2 + 1))
+
+private val workers = generateSequence { Worker.start() }
+    .take(8)
+    .toList()
 
 //////////// SIMPLE BINARIZATION ////////////
 
@@ -16,19 +21,27 @@ fun simpleBinarize(
     output: jbyteArray,
     size: jint
 ) {
-    val originalBytes = env.pointed.pointed!!.GetByteArrayElements!!.invoke(env, input, null)!!
-    val processedBytes = env.pointed.pointed!!.GetByteArrayElements!!.invoke(env, output, null)!!
+    val originalBytes = env.getByteArrayElements(input)
+    val processedBytes = env.getByteArrayElements(output)
 
-    for (i in 0 until size) {
-        if (originalBytes[i] < 0) {
-            processedBytes[i] = -1
-        } else {
-            processedBytes[i] = 0
+    val futures = ArrayList<Future<Unit>>(workers.size)
+
+    workers.forEachIndexed { index, worker ->
+        futures += worker.execute(TransferMode.SAFE, { WorkerArg(index, originalBytes, processedBytes) }) {
+            for (i in it.id until it.size step it.threadCount) {
+                if (it.originalBytes[i] < 0) {
+                    it.processedBytes[i] = -1
+                } else {
+                    it.processedBytes[i] = 0
+                }
+            }
         }
     }
 
-    env.pointed.pointed!!.ReleaseByteArrayElements!!.invoke(env, input, originalBytes, 0)
-    env.pointed.pointed!!.ReleaseByteArrayElements!!.invoke(env, output, processedBytes, 0)
+    futures.forEach { it.result }
+
+    env.releaseByteArrayElements(input, originalBytes)
+    env.releaseByteArrayElements(output, processedBytes)
 }
 
 //////////// BRADLEY BINARIZATION ////////////
@@ -43,20 +56,28 @@ fun bradleyBinarize(
     width: jint,
     height: jint
 ) {
-    val originalBytes: CPointer<ByteVarOf<jbyte>> = env.pointed.pointed!!.GetByteArrayElements!!.invoke(env, input, null)!!
-    val processedBytes = env.pointed.pointed!!.GetByteArrayElements!!.invoke(env, output, null)!!
+    val originalBytes = env.getByteArrayElements(input)
+    val processedBytes = env.getByteArrayElements(output)
 
-    for (i in 0 until size) {
-        val th = threshold(originalBytes, i, width, height)
-        if ((originalBytes[i].toInt() and 0xFF) > th) {
-            processedBytes[i] = -1
-        } else {
-            processedBytes[i] = 0
+    val futures = ArrayList<Future<Unit>>(workers.size)
+
+    workers.forEachIndexed { index, worker ->
+        futures += worker.execute(TransferMode.SAFE, { WorkerArg(index, originalBytes, processedBytes, width, height) }) {
+            for (i in it.id until it.size step it.threadCount) {
+                val th = threshold(it.originalBytes, i, it.width, it.height)
+                if ((it.originalBytes[i].toInt() and 0xFF) > th) {
+                    it.processedBytes[i] = -1
+                } else {
+                    it.processedBytes[i] = 0
+                }
+            }
         }
     }
 
-    env.pointed.pointed!!.ReleaseByteArrayElements!!.invoke(env, input, originalBytes, 0)
-    env.pointed.pointed!!.ReleaseByteArrayElements!!.invoke(env, output, processedBytes, 0)
+    futures.forEach { it.result }
+
+    env.releaseByteArrayElements(input, originalBytes)
+    env.releaseByteArrayElements(output, processedBytes)
 }
 
 private fun threshold(data: CPointer<ByteVarOf<jbyte>>, index: Int, width: Int, height: Int): Int {
@@ -93,7 +114,7 @@ private fun calculateIntegral(originalBytes: CPointer<ByteVarOf<jbyte>>, integra
     }
 }
 
-private fun getIntegralAverage(index: Int, integral: IntArray, width: Int): Int {
+private fun getIntegralAverage(index: Int, integral: CPointer<IntVar>, width: Int): Int {
     val one = integral[index + radius * width + radius]
     val two = integral[index - radius * width - radius]
     val three = integral[index + radius * width - radius]
@@ -101,7 +122,7 @@ private fun getIntegralAverage(index: Int, integral: IntArray, width: Int): Int 
     return (one + two - three - four) / area
 }
 
-private fun integralThreshold(integral: IntArray, index: Int, width: Int, height: Int): Int {
+private fun integralThreshold(integral: CPointer<IntVar>, index: Int, width: Int, height: Int): Int {
     if (index + radius * width + radius >= width * height || index - radius * width - radius < 0) return 127
 
     val average = getIntegralAverage(index, integral, width)
@@ -118,20 +139,31 @@ fun bradleyIntegralBinarize(
     width: jint,
     height: jint
 ) {
-    val originalBytes: CPointer<ByteVarOf<jbyte>> = env.pointed.pointed!!.GetByteArrayElements!!.invoke(env, input, null)!!
-    val processedBytes = env.pointed.pointed!!.GetByteArrayElements!!.invoke(env, output, null)!!
+    val originalBytes = env.getByteArrayElements(input)
+    val processedBytes = env.getByteArrayElements(output)
+
     val integral = IntArray(size)
     calculateIntegral(originalBytes, integral, width, height)
 
-    for (i in 0 until size) {
-        val th = integralThreshold(integral, i, width, height)
-        if ((originalBytes[i].toInt() and 0xFF) > th) {
-            processedBytes[i] = -1
-        } else {
-            processedBytes[i] = 0
-        }
-    }
+    val futures = ArrayList<Future<Unit>>(workers.size)
 
-    env.pointed.pointed!!.ReleaseByteArrayElements!!.invoke(env, input, originalBytes, 0)
-    env.pointed.pointed!!.ReleaseByteArrayElements!!.invoke(env, output, processedBytes, 0)
+    integral.usePinned {
+        workers.forEachIndexed { index, worker ->
+            futures += worker.execute(TransferMode.SAFE, { WorkerArg(index, originalBytes, processedBytes, width, height, it.addressOf(0)) }) {
+                for (i in it.id until it.size step it.threadCount) {
+                    val th = integralThreshold(it.integral!!, i, it.width, it.height)
+                    if ((it.originalBytes[i].toInt() and 0xFF) > th) {
+                        it.processedBytes[i] = -1
+                    } else {
+                        it.processedBytes[i] = 0
+                    }
+                }
+            }
+        }
+   }
+
+    futures.forEach { it.result }
+
+    env.releaseByteArrayElements(input, originalBytes)
+    env.releaseByteArrayElements(output, processedBytes)
 }
