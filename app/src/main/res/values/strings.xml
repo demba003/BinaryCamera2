@@ -12,6 +12,7 @@
     <string name="bradley_cpp">Bradley C++</string>
     <string name="bradley_int_cpp">Bradley Int C++</string>
     <string name="bradley_rs">Bradley RS</string>
+    <string name="bradley_int_rs">Bradley Int RS</string>
     <string name="bradley_fs">Bradley FS</string>
     <string name="preview_fps">Preview FPS: %d</string>
     <string name="processing_fps">Processing FPS: %d</string>

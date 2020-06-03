@@ -13,7 +13,6 @@ import pl.pk.binarizer.Benchmarkable
 import pl.pk.binarizer.ProcessingMode
 import pl.pk.binarizer.Processor
 import pl.pk.binarizer.rs.YuvToMonochrome
-import kotlin.concurrent.thread
 
 class ProcessorProxy(rs: RenderScript) : Processor, Benchmarkable, KoinComponent {
     private val inputAllocation: Allocation by inject(named("Input"))
@@ -37,13 +36,18 @@ class ProcessorProxy(rs: RenderScript) : Processor, Benchmarkable, KoinComponent
         ProcessingMode.SIMPLE_RS to pl.pk.binarizer.rs.SimpleBinarization(rs),
 
         ProcessingMode.BRADLEY_KT to pl.pk.binarizer.jvm.BradleyBinarization(rs, previewSize),
-        ProcessingMode.BRADLEY_KT_NATIVE to pl.pk.binarizer.ktnative.BradleyBinarization(rs, previewSize),
         ProcessingMode.BRADLEY_INT_KT to pl.pk.binarizer.jvm.BradleyIntegralBinarization(rs, previewSize),
+
+        ProcessingMode.BRADLEY_KT_NATIVE to pl.pk.binarizer.ktnative.BradleyBinarization(rs, previewSize),
         ProcessingMode.BRADLEY_INT_KT_NATIVE to pl.pk.binarizer.ktnative.BradleyIntegralBinarization(rs, previewSize),
+
         ProcessingMode.BRADLEY_CPP to pl.pk.binarizer.cpp.BradleyBinarization(rs, previewSize),
         ProcessingMode.BRADLEY_INT_CPP to pl.pk.binarizer.cpp.BradleyIntegralBinarization(rs, previewSize),
-        ProcessingMode.BRADLEY_FS to pl.pk.binarizer.rs.BradleyBinarizationFS(rs, previewSize),
-        ProcessingMode.BRADLEY_RS to pl.pk.binarizer.rs.BradleyBinarizationRS(rs, previewSize)
+
+        ProcessingMode.BRADLEY_RS to pl.pk.binarizer.rs.BradleyBinarizationRS(rs, previewSize),
+        ProcessingMode.BRADLEY_INT_RS to pl.pk.binarizer.rs.IntegralBradleyBinarizationRS(rs, previewSize),
+
+        ProcessingMode.BRADLEY_FS to pl.pk.binarizer.rs.BradleyBinarizationFS(rs, previewSize)
     )
 
     init {
