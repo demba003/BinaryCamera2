@@ -22,7 +22,7 @@ class BinaryCameraActivity : AppCompatActivity() {
             originalPreviewButton,
             simpleKotlinButton, simpleKtNativeButton, simpleCppButton, simpleRsButton,
             bradleyKotlinButton, bradleyKotlinNativeButton, bradleyCppButton, bradleyFsButton, bradleyRsButton,
-            bradleyIntKotlinButton, bradleyIntKotlinNativeButton, bradleyIntCppButton, bradleyIntRsButton
+            bradleyIntKotlinButton, bradleyIntKotlinNativeButton, bradleyIntCppButton, bradleyIntRsButton, bradleyIntFsButton
         )
     }
 
@@ -67,6 +67,7 @@ class BinaryCameraActivity : AppCompatActivity() {
         bradleyIntRsButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_INT_RS) }
 
         bradleyFsButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_FS) }
+        bradleyIntFsButton.setOnClickListener { viewModel.switchMode(ProcessingMode.BRADLEY_INT_FS) }
 
         viewModel.processingTime
             .observeOn(AndroidSchedulers.mainThread())
@@ -97,6 +98,7 @@ class BinaryCameraActivity : AppCompatActivity() {
                     ProcessingMode.BRADLEY_RS -> bradleyRsButton.disable()
                     ProcessingMode.BRADLEY_INT_RS -> bradleyIntRsButton.disable()
                     ProcessingMode.BRADLEY_FS -> bradleyFsButton.disable()
+                    ProcessingMode.BRADLEY_INT_FS -> bradleyIntFsButton.disable()
                     ProcessingMode.SIMPLE_KT -> simpleKotlinButton.disable()
                     ProcessingMode.SIMPLE_KT_NATIVE -> simpleKtNativeButton.disable()
                     ProcessingMode.SIMPLE_CPP -> simpleCppButton.disable()

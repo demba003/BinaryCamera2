@@ -5,7 +5,7 @@ import android.renderscript.RenderScript
 import android.util.Size
 import pl.pk.binarizer.Processor
 
-class BradleyBinarizationRS(rs: RenderScript, private val dimensions: Size) : Processor {
+class BradleyBinarizationRS(private val rs: RenderScript, private val dimensions: Size) : Processor {
 
     private val kernel = ScriptC_BradleyBinarizationRS(rs)
 
@@ -14,6 +14,7 @@ class BradleyBinarizationRS(rs: RenderScript, private val dimensions: Size) : Pr
         kernel._width = dimensions.width.toLong()
         kernel._height = dimensions.height.toLong()
         kernel.forEach_process(output)
+        rs.finish()
     }
 
 }

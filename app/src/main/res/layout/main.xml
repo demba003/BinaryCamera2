@@ -146,6 +146,12 @@
                     android:text="@string/bradley_fs" />
 
                 <Button
+                    android:id="@+id/bradleyIntFsButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bradley_int_fs" />
+
+                <Button
                     android:id="@+id/bradleyRsButton"
                     android:layout_width="150dp"
                     android:layout_height="wrap_content"
